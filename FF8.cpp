@@ -480,30 +480,30 @@ class Opponent : public Player {
 };
 
 class Battle {
-	void run(HumanPlayer &protagonist){
-		Opponent antagonist;
-		antagonist.init(protagonist.chapter());
-		//TODO: Fix calling Chapter below.
-		antagonist.setName((char*)"bot");
-		while(protagonist.alive() && antagonist.alive()) {
-			TERMINAL_CLEAR;
-			cout<<antagonist.name()<<"\t\t\t"<<protagonist.name()<<endl;
-			cout<<antagonist.remainingHealth()<<"\t\t\t"<<protagonist.remainingHealth()<<endl;
-			cout<<"Enter the move you would like to use"<<endl;
-			protagonist.battle(antagonist);
-			cout<<antagonist.remainingHealth()<<"\t\t\t"<<protagonist.remainingHealth()<<endl;
-			//Moves need to be done in Unlockable Sequence
+	public:
+		static void run(HumanPlayer &protagonist){
+			Opponent antagonist;
+			antagonist.init(protagonist.chapter());
+			antagonist.setName((char*)"bot");
+			while(protagonist.alive() && antagonist.alive()) {
+				TERMINAL_CLEAR;
+				cout<<antagonist.name()<<"\t\t\t"<<protagonist.name()<<endl;
+				cout<<antagonist.remainingHealth()<<"\t\t\t"<<protagonist.remainingHealth()<<endl;
+				cout<<"Enter the move you would like to use"<<endl;
+				protagonist.battle(antagonist);
+				cout<<antagonist.remainingHealth()<<"\t\t\t"<<protagonist.remainingHealth()<<endl;
+				//Moves need to be done in Unlockable Sequence
+				getInputCharFromConsole();
+			}
+			if(antagonist.alive()) {
+				cout<<"You Lose";
+			}
+			if(protagonist.alive()) {
+				cout<<"You Win";
+			}
+			protagonist.revive();
 			getInputCharFromConsole();
 		}
-		if(antagonist.alive()) {
-			cout<<"You Win";
-		}
-		if(protagonist.alive()) {
-			cout<<"You Lose";
-		}
-		protagonist.revive();
-		getInputCharFromConsole();
-	}
 };
 
 class FF8Game {
@@ -541,8 +541,8 @@ class FF8Game {
 				if(Text[0]=='#'){
 					X.moveToNextChapter();
 				}
-				if(Text[0]==';'){
-
+				if(Text[0]=='B'){
+					Battle::run(X);	
 				}
 				getInputCharFromConsole();	
 			}
