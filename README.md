@@ -1,6 +1,7 @@
 # FinalFantasy
 My first C++ school project
 
+```
 To compile
   g++ FF8.cpp
   
@@ -12,3 +13,4 @@ Useful git commands
     git push origin master
   To update to latest commit on github:
     git pull origin master
+```
