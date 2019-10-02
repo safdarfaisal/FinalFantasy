@@ -1,0 +1,14 @@
+{
+"games" : [
+	{
+		"name" : "saved1",
+		"chapter" : 3,
+		"player": {
+			"skill": 1,
+			"hitPoints":34
+		}
+	},
+	{},
+	{}
+]
+}
