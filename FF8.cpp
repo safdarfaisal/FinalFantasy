@@ -11,8 +11,9 @@
 #include<string.h>
 #include<time.h>
 #include<stdlib.h>
+#include <sstream>
+
 using namespace std;
-//TODO: Clean up all global vars
 
 #define MAX_NAME_LEN 30
 
@@ -54,7 +55,7 @@ class MoveSet{
 	int A;
 	char Name[MAX_NAME_LEN];
 	char Type;
-	static int move_count = 0;
+	static int move_count;
 
 public:
 	MoveSet(){
@@ -104,20 +105,134 @@ public:
 	}		
 };
 
+int MoveSet::move_count = 0;
+
+class CharacterBehavior {
+	private:
+		int HP;
+		int Patt,Pdef,Matt,Mdef;
+		int Acc,Eva,Sp,Crit;
+		int damagePoints;
+
+	public:	
+		CharacterBehavior(){}
+		int damage() {
+			return damagePoints;
+		}
+		int hitPoints() {
+			return HP;
+		}
+		int physicalAttack() {
+			return Patt;
+		}
+		int physicalDefense() {
+			return Pdef;
+		}
+		int magicalAttack() {
+			return Matt;
+		}
+		int magicalDefense() {
+			return Mdef;
+		}
+		int accuracy() {
+			return Acc;
+		}
+		int evasion() {
+			return Eva;
+		}
+		int speed() {
+			return Sp;
+		}
+		int criticalChance() {
+			return Crit;
+		}
+		void setDamage(int dmg) {
+			damagePoints = dmg;
+		}
+		void setHitPoints(int hitPoints) {
+			HP = hitPoints;
+		}
+		void setPhysicalAttack(int val) {
+			Patt = val;
+		}
+		void setPhysicalDefense(int val) {
+			Pdef = val;
+		}
+		void setMagicalAttack(int val) {
+			Matt = val;
+		}
+		void setMagicalDefense(int val) {
+			Mdef = val;
+		}
+		void setAccuracy(int val) {
+			Acc = val;
+		}
+		void setEvasion(int val) {
+			Eva = val;
+		}
+		void setSpeed(int val) {
+			Sp = val;
+		}
+		void setCriticalChance(int val) {
+			Crit = val;
+		}
+		void changeDamage(int dmg) {
+			damagePoints += dmg;
+		}
+		void changeHitPoints(int hitPoints) {
+			HP += hitPoints;
+		}
+		void changePhysicalAttack(int val) {
+			Patt += val;
+		}
+		void changePhysicalDefense(int val) {
+			Pdef += val;
+		}
+		void changeMagicalAttack(int val) {
+			Matt += val;
+		}
+		void changeMagicalDefense(int val) {
+			Mdef += val;
+		}
+		void changeAccuracy(int val) {
+			Acc += val;
+		}
+		void changeEvasion(int val) {
+			Eva += val;
+		}
+		void changeSpeed(int val) {
+			Sp += val;
+		}
+		void changeCriticalChance(int val) {
+			Crit += val;
+		}
+		void CharDisplay(){
+			cout<<"Health: "<<HP<<endl;
+			cout<<"Physical Attack: "<<Patt<<endl;
+			cout<<"Physical Defense: "<<Pdef<<endl;
+			cout<<"Magical Attack: "<<Matt<<endl;
+			cout<<"Magical Defense: "<<Mdef<<endl;
+			cout<<"Speed: "<<Sp<<endl;
+			cout<<"Evasion: "<<Eva<<endl;
+			cout<<"Accuracy: "<<Acc<<endl;
+			cout<<"Critical: "<<Crit<<endl;
+		}
+};
+
 class Player {
-	char name[MAX_NAME_LEN];
+	char _name[MAX_NAME_LEN];
 
 	protected:
-		CharacterBehavior baseBehavior;
+		CharacterBehavior base;
 
 	public:
 		Player() {};
 		void setName(char *in_name) {
-			memset(name, 0, MAX_NAME_LEN);
-			strncpy(name, in_name, MAX_NAME_LEN-1);
+			memset(_name, 0, MAX_NAME_LEN);
+			strncpy(_name, in_name, MAX_NAME_LEN-1);
 		}
 		char *name() {
-			return name;
+			return _name;
 		}
 		int remainingHealth() {
 			return (base.hitPoints() - base.damage());
@@ -128,26 +243,9 @@ class Player {
 		void revive() {
 			base.setDamage(0);
 		}		
-}
-
-class Opponent : public Player {
-	private:
-		ComputerPlayerBehavior compBehavior;
-
-	public:
-		void init(int x) {
-			char chapterNumStr[5] = {0};
-			itoa(x, chapterNumStr, 10);
-			char fileName[MAX_NAME_LEN] = {0};
-			strcat(fileName, "opp_chapter_");
-			strcat(fileName, chapterNumStr);
-			strcat(fileName, ".dat");
-			compBehavior.init(x, fileName, baseBehavior);
-		}
-
 		CharacterBehavior& characterBehavior() {
-			return baseBehavior;
-`		}
+			return base;
+		}
 };
 
 class ComputerPlayerBehavior {
@@ -172,45 +270,17 @@ class ComputerPlayerBehavior {
 		}
 };
 
-class HumanPlayer : public Player {
-	private:
-		HumanPlayerBehavior humanBehavior;
-		
-	public:
-		void setHumanBehavior(int playerRole) {
-			humanBehavior.Charchange(playerRole);
-		}
-
-		void display() {
-			TERMINAL_CLEAR;
-			cout<<this->name()<<endl;
-			humanBehavior.CharDisplay();
-			cout<<"Stats"<<endl;
-			baseBehavior.CharDisplay();
-			getInputCharFromConsole();
-		}
-
-		void updateStats() {
-			humanBehavior.StatUp(baseBehavior);
-		}
-
-		void battle(Player& opponent) {
-			humanBehavior.MoveCheck(opponent.characterBehavior());
-		}
-};
-
 class HumanPlayerBehavior {
 	private:
 		int Skill;
 		char Class[10];
+		MoveSet Move[4];
 	public:
 		Equipment Helm;
 		Equipment Chestpiece;
 		Equipment Boots;
 		Equipment Weapon;
 		Equipment Enhance;
-		MoveSet Move[4];
-		int Chapter;
 
 		void CharDisplay(){
 			cout<<Class<<endl;
@@ -219,7 +289,6 @@ class HumanPlayerBehavior {
 
 		void Charchange(int M, CharacterBehavior &base){
 			char Name[20];
-			base.setSkill(20);
 			base.setHitPoints(40);
 			base.setPhysicalAttack(20);
 			base.setPhysicalDefense(20);
@@ -308,8 +377,10 @@ class HumanPlayerBehavior {
 			}
 		}
 
-		void setOpponentDamage(int choice, CharacterBehavior& M) {
+		void setOpponentDamage(int choice, CharacterBehavior& base,
+			CharacterBehavior& M) {
 			int DMG;
+			float Mrate;
 			if(Move[choice-1].GetType()=='M'){
 				Mrate = base.magicalAttack()/M.magicalDefense();
 			} else {
@@ -319,156 +390,101 @@ class HumanPlayerBehavior {
 			M.changeDamage(DMG);
 		}
 
-		void setOwnDamage(CharacterBehavior& M) {
+		void setOwnDamage(CharacterBehavior& base, CharacterBehavior& M) {
 			int DMG;
+			float Mrate;
 			srand(time(0));
 			int A=rand();
 			Mrate=(M.physicalAttack()+M.magicalAttack())/(base.magicalDefense()+base.physicalDefense());
 			DMG=Mrate*(A%30);
-			changeDamage(DMG);
+			base.changeDamage(DMG);
 		}
 
-		void MoveCheck(CharacterBehavior &M) {
+		void MoveCheck(CharacterBehavior &base, CharacterBehavior &M) {
 			for(int i=0;Move[i].GetExistence()!=0;i++){
 				Move[i].MoveDisplay(i+1);
 			}
 			int choice = 0;
 			cin >> choice;
 			bool ownAttackFirst = false;
-			float Mrate;
 			if(base.speed() > M.speed()){
-				setOpponentDamage(choice, M);
+				setOpponentDamage(choice, base, M);
 				ownAttackFirst = true;
 			} else {
-				setOwnDamage(M);
+				setOwnDamage(base, M);
 			}
 			if(ownAttackFirst) {
-				setOwnDamage();
+				setOwnDamage(base, M);
 			} else {
-				setOpponentDamage();
+				setOpponentDamage(choice, base, M);
 			}
 		}
 };
 
-class CharacterBehavior {
+class HumanPlayer : public Player {
 	private:
-		int HP;
-		int Patt,Pdef,Matt,Mdef;
-		int Acc,Eva,Sp,Crit;
-		int damage;
+		HumanPlayerBehavior humanBehavior;
+		int _chapter;
+		
+	public:
+		HumanPlayer() {
+			_chapter = 0;
+		}
 
-	public:	
-		CharacterBehavior(){}
-		int damage() {
-			return damage;
+		void setHumanBehavior(int playerRole) {
+			humanBehavior.Charchange(playerRole, base);
 		}
-		int hitPoints() {
-			return HP;
+
+		void display() {
+			TERMINAL_CLEAR;
+			cout<<this->name()<<endl;
+			humanBehavior.CharDisplay();
+			cout<<"Stats"<<endl;
+			base.CharDisplay();
+			getInputCharFromConsole();
 		}
-		int physicalAttack() {
-			return Patt;
+
+		void updateStats() {
+			humanBehavior.StatUp(base);
 		}
-		int physicalDefense() {
-			return Pdef;
+
+		void battle(Player& opponent) {
+			humanBehavior.MoveCheck(base, opponent.characterBehavior());
 		}
-		int magicalAttack() {
-			return Matt;
+
+		void moveToNextChapter() {
+			_chapter++;
 		}
-		int magicalDefense() {
-			return Mdef;
+
+		int chapter() {
+			return _chapter;
 		}
-		int accuracy() {
-			return Acc;
-		}
-		int evasion() {
-			return Eva;
-		}
-		int speed() {
-			return Sp;
-		}
-		int criticalChance() {
-			return Crit;
-		}
-		void setDamage(int dmg) {
-			damage = dmg;
-		}
-		void setHitPoints(int hitPoints) {
-			HP = hitPoints;
-		}
-		void setPhysicalAttack(int val) {
-			Patt = val;
-		}
-		void setPhysicalDefense(int val) {
-			Pdef = val;
-		}
-		void setMagicalAttack(int val) {
-			Matt = val;
-		}
-		void setMagicalDefense(int val) {
-			Mdef = val;
-		}
-		void setAccuracy(int val) {
-			Acc = val;
-		}
-		void setEvasion(int val) {
-			Eva = val;
-		}
-		void setSpeed(int val) {
-			Sp = val;
-		}
-		void setCriticalChance(int val) {
-			Crit = val;
-		}
-		void changeDamage(int dmg) {
-			damage += dmg;
-		}
-		void changeHitPoints(int hitPoints) {
-			HP += hitPoints;
-		}
-		void changePhysicalAttack(int val) {
-			Patt += val;
-		}
-		void changePhysicalDefense(int val) {
-			Pdef += val;
-		}
-		void changeMagicalAttack(int val) {
-			Matt += val;
-		}
-		void changeMagicalDefense(int val) {
-			Mdef += val;
-		}
-		void changeAccuracy(int val) {
-			Acc += val;
-		}
-		void changeEvasion(int val) {
-			Eva += val;
-		}
-		void changeSpeed(int val) {
-			Sp += val;
-		}
-		void changeCriticalChance(int val) {
-			Crit += val;
-		}
-		void CharDisplay(){
-			cout<<"Health: "<<HP<<endl;
-			cout<<"Physical Attack: "<<Patt<<endl;
-			cout<<"Physical Defense: "<<Pdef<<endl;
-			cout<<"Magical Attack: "<<Matt<<endl;
-			cout<<"Magical Defense: "<<Mdef<<endl;
-			cout<<"Speed: "<<Sp<<endl;
-			cout<<"Evasion: "<<Eva<<endl;
-			cout<<"Accuracy: "<<Acc<<endl;
-			cout<<"Critical: "<<Crit<<endl;
+};
+
+class Opponent : public Player {
+	private:
+		ComputerPlayerBehavior compBehavior;
+
+	public:
+		void init(int x) {
+			char chapterNumStr[5] = {0};
+			//itoa(x, chapterNumStr, 10);
+			char fileName[MAX_NAME_LEN] = {0};
+			strcat(fileName, "opp_chapter_");
+			ostringstream oss;
+			oss << x;
+			strcat(fileName, oss.str().c_str());
+			strcat(fileName, ".dat");
+			compBehavior.init(x, fileName, base);
 		}
 };
 
 class Battle {
 	void run(HumanPlayer &protagonist){
 		Opponent antagonist;
-		computerPlayer.init();
+		antagonist.init(protagonist.chapter());
 		//TODO: Fix calling Chapter below.
-		antagonist = Opp_Gen(protagonist.Chapter);
-		antagonist.setName("bot");
+		antagonist.setName((char*)"bot");
 		while(protagonist.alive() && antagonist.alive()) {
 			TERMINAL_CLEAR;
 			cout<<antagonist.name()<<"\t\t\t"<<protagonist.name()<<endl;
@@ -488,13 +504,13 @@ class Battle {
 		protagonist.revive();
 		getInputCharFromConsole();
 	}
-}
+};
 
 class FF8Game {
 	private:
 		bool newAccount;
 	public:
-		void FileSave(Character X){
+		void FileSave(HumanPlayer& X){
 			ofstream Save("Savefile.dat",ios::app);
 			Save.write((char*)&X,sizeof(X));
 			Save.close();
@@ -517,13 +533,13 @@ class FF8Game {
 			Save.close();
 		}
 
-		void StoryCheck(int x, Character X){
+		void StoryCheck(HumanPlayer& X){
 			ifstream Story("Story.txt");
 			char Text[300];
 			while(Story.getline(Text,300)){
 				cout<<Text<<endl;
 				if(Text[0]=='#'){
-					X.Chapter++;
+					X.moveToNextChapter();
 				}
 				if(Text[0]==';'){
 
@@ -533,7 +549,7 @@ class FF8Game {
 			getInputCharFromConsole();
 		}
 
-		static void start() {
+		void start() {
 			HumanPlayer LeadChar;
 			FileRead(LeadChar);
 			if(newAccount){
@@ -550,17 +566,18 @@ class FF8Game {
 				LeadChar.setName(temp_name);
 				LeadChar.setHumanBehavior(choice);
 				LeadChar.display();
-				LeadChar.StatUp();
+				LeadChar.updateStats();
 				FileSave(LeadChar);
 			}
 			LeadChar.display();
 			TERMINAL_CLEAR;
-			StoryCheck(X.Chapter,X);
+			StoryCheck(LeadChar);
 		}
 };
 
 int main() {
-	FF8Game::start();
+	FF8Game game;
+	game.start();
 	return 0;
 }
 
