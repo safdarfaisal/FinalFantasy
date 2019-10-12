@@ -298,6 +298,7 @@ class HumanPlayerBehavior {
 			base.setEvasion(10);
 			base.setSpeed(20);
 			base.setCriticalChance(5);
+            Skill = 20;
 
 			if(M==1){
 				base.changeSpeed(10);
@@ -332,7 +333,7 @@ class HumanPlayerBehavior {
 		}
 
 		void StatUp(CharacterBehavior &base) {
-			int x,y,z;
+			int x = 0, y = 0, z = 0;
 			while(Skill>0){
 				TERMINAL_CLEAR;
 				cout<<"Skill Points Left: "<<Skill<<endl;
@@ -340,10 +341,15 @@ class HumanPlayerBehavior {
 				cout<<" 1.Hit Points \n 2.Physical Attack \n 3.Physical Defense"<<endl;
 				cout<<" 4.Magic Attack \n 5.Magic Defense \n 6.Accuracy"<<endl;	
 				cout<<" 7.Speed \n 8.Evasion \n 9.Critical Chance"<<endl;	
-				cout<<" Enter 10 to quit and save your skill points."<<endl;
+				cout<<" Enter 10 to quit and preserve your skill points."<<endl;
 				cin>>x;
-				cout<<"Choose the number of skill points to be used"<<endl;
-				cin>>y;
+                if ((x > 10) || (x < 1)) { 
+                    continue;
+                }
+                if (x < 10) {
+                    cout<<"Choose the number of skill points to be used"<<endl;
+                    cin>>y;
+                }
 				if(Skill>=y){
 					switch(x){
 						case 1:	base.changeHitPoints(y*5);
@@ -364,15 +370,17 @@ class HumanPlayerBehavior {
 							break;
 						case 9:	base.changeCriticalChance(y*5);
 							break;
-						case 10:z=1;
-							break;
+                        case 10:
+                            //flow through
+                        default:
+                            z = 1;
+                            break;
 					}
-					if(z!=1){
+					if(z == 1) {
+                        break;
+                    } else { 
 						Skill-=y;	
 					}
-				}
-				if(z==1){
-					break;
 				}
 			}
 		}
@@ -467,8 +475,6 @@ class Opponent : public Player {
 
 	public:
 		void init(int x) {
-			char chapterNumStr[5] = {0};
-			//itoa(x, chapterNumStr, 10);
 			char fileName[MAX_NAME_LEN] = {0};
 			strcat(fileName, "opp_chapter_");
 			ostringstream oss;
@@ -507,20 +513,19 @@ class Battle {
 };
 
 class FF8Game {
-	private:
-		bool newAccount;
 	public:
-		void FileSave(HumanPlayer& X){
+		static void FileSave(HumanPlayer& X){
 			ofstream Save("Savefile.dat",ios::app);
 			Save.write((char*)&X,sizeof(X));
 			Save.close();
 		}
 
-		void FileRead(HumanPlayer &X){
+		static bool FileRead(HumanPlayer &X){
+            bool newAccount = true;
 			HumanPlayer M;
 			char x;
-			ifstream Save("Savefile.dat",ios::out);
-			while(Save.read((char*)&M,sizeof(M))){
+			ifstream SavedFile("Savefile.dat",ios::out);
+			while(SavedFile.read((char*)&M,sizeof(M))){
 				M.display();
 				cout<<"Is this your savefile?(y/n)"<<endl;
 				cin>>x;
@@ -530,10 +535,11 @@ class FF8Game {
 					break;		
 				}
 			}
-			Save.close();
+			SavedFile.close();
+            return newAccount;
 		}
 
-		void StoryCheck(HumanPlayer& X){
+		static void StoryCheck(HumanPlayer& X){
 			ifstream Story("Story.txt");
 			char Text[300];
 			while(Story.getline(Text,300)){
@@ -549,10 +555,10 @@ class FF8Game {
 			getInputCharFromConsole();
 		}
 
-		void start() {
+		static void start() {
 			HumanPlayer LeadChar;
-			FileRead(LeadChar);
-			if(newAccount){
+			if (FileRead(LeadChar)) {
+                //new account
 				TERMINAL_CLEAR;
 				cout<<"Welcome to the Game. What character would you like to play?"<<endl;
 				cout<<"1.Archer \n A fast and evasive class with an eye for details."<<endl;
@@ -576,8 +582,7 @@ class FF8Game {
 };
 
 int main() {
-	FF8Game game;
-	game.start();
+    FF8Game::start();
 	return 0;
 }
 
