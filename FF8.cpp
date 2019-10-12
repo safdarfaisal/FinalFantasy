@@ -3,10 +3,10 @@
 #ifdef __FF8_WINDOWS__
 	#include<conio.h>
 	#define TERMINAL_CLEAR system("cls")
-	#define GET_CHAR_FN getch();
+	#define GET_CHAR_FN return getch();
 #else
 	#define TERMINAL_CLEAR system("clear")
-	#define GET_CHAR_FN fflush(stdin);getchar();
+    #define GET_CHAR_FN return cin.get();
 #endif
 #include<string.h>
 #include<time.h>
@@ -19,7 +19,8 @@ using namespace std;
 
 int getInputCharFromConsole()
 {
-	return GET_CHAR_FN;
+    cout << "Press any key to continue...";
+	GET_CHAR_FN;
 }
 
 class Equipment {
@@ -115,7 +116,11 @@ class CharacterBehavior {
 		int damagePoints;
 
 	public:	
-		CharacterBehavior(){}
+		CharacterBehavior(){
+            HP = 0;
+            Patt = Pdef = Matt = Mdef = 0;
+            Acc = Eva = Sp = Crit = damagePoints = 0;
+        }
 		int damage() {
 			return damagePoints;
 		}
@@ -335,7 +340,7 @@ class HumanPlayerBehavior {
 		void StatUp(CharacterBehavior &base) {
 			int x = 0, y = 0, z = 0;
 			while(Skill>0){
-				TERMINAL_CLEAR;
+                TERMINAL_CLEAR;
 				cout<<"Skill Points Left: "<<Skill<<endl;
 				cout<<"Choose a stat you would like to upgrade."<<endl;	
 				cout<<" 1.Hit Points \n 2.Physical Attack \n 3.Physical Defense"<<endl;
@@ -409,11 +414,14 @@ class HumanPlayerBehavior {
 		}
 
 		void MoveCheck(CharacterBehavior &base, CharacterBehavior &M) {
+            //TODO: Move display not being printed
 			for(int i=0;Move[i].GetExistence()!=0;i++){
 				Move[i].MoveDisplay(i+1);
 			}
 			int choice = 0;
 			cin >> choice;
+            //read '\n'
+            cin.get();
 			bool ownAttackFirst = false;
 			if(base.speed() > M.speed()){
 				setOpponentDamage(choice, base, M);
@@ -436,20 +444,22 @@ class HumanPlayer : public Player {
 		
 	public:
 		HumanPlayer() {
-			_chapter = 0;
+			_chapter = 1;
 		}
 
 		void setHumanBehavior(int playerRole) {
 			humanBehavior.Charchange(playerRole, base);
 		}
 
-		void display() {
+		void display(bool wait) {
 			TERMINAL_CLEAR;
 			cout<<this->name()<<endl;
 			humanBehavior.CharDisplay();
 			cout<<"Stats"<<endl;
 			base.CharDisplay();
-			getInputCharFromConsole();
+            if (wait) {
+                getInputCharFromConsole();
+            }
 		}
 
 		void updateStats() {
@@ -491,22 +501,25 @@ class Battle {
 			Opponent antagonist;
 			antagonist.init(protagonist.chapter());
 			antagonist.setName((char*)"bot");
-			while(protagonist.alive() && antagonist.alive()) {
-				TERMINAL_CLEAR;
-				cout<<antagonist.name()<<"\t\t\t"<<protagonist.name()<<endl;
-				cout<<antagonist.remainingHealth()<<"\t\t\t"<<protagonist.remainingHealth()<<endl;
-				cout<<"Enter the move you would like to use"<<endl;
-				protagonist.battle(antagonist);
-				cout<<antagonist.remainingHealth()<<"\t\t\t"<<protagonist.remainingHealth()<<endl;
-				//Moves need to be done in Unlockable Sequence
-				getInputCharFromConsole();
-			}
-			if(antagonist.alive()) {
-				cout<<"You Lose";
-			}
-			if(protagonist.alive()) {
-				cout<<"You Win";
-			}
+            cout << protagonist.remainingHealth() << " " << antagonist.remainingHealth() << "\n";
+            while(protagonist.alive() && antagonist.alive()) {
+                TERMINAL_CLEAR;
+                cout<<antagonist.name()<<"\t\t\t"<<protagonist.name()<<endl;
+                cout<<antagonist.remainingHealth()<<"\t\t\t"<<protagonist.remainingHealth()<<endl;
+                cout<<"Enter the move you would like to use"<<endl;
+                protagonist.battle(antagonist);
+                cout<<antagonist.remainingHealth()<<"\t\t\t"<<protagonist.remainingHealth()<<endl;
+                if(!antagonist.alive()) {
+                    cout<<"\nYou Win\n";
+                    break;
+                }
+                if(!protagonist.alive()) {
+                    cout<<"\nYou Lose\n";
+                    break;
+                }
+                //Moves need to be done in Unlockable Sequence
+                getInputCharFromConsole();
+            }
 			protagonist.revive();
 			getInputCharFromConsole();
 		}
@@ -526,7 +539,7 @@ class FF8Game {
 			char x;
 			ifstream SavedFile("Savefile.dat",ios::out);
 			while(SavedFile.read((char*)&M,sizeof(M))){
-				M.display();
+				M.display(false);
 				cout<<"Is this your savefile?(y/n)"<<endl;
 				cin>>x;
 				if(x=='y'){
@@ -539,21 +552,22 @@ class FF8Game {
             return newAccount;
 		}
 
-		static void StoryCheck(HumanPlayer& X){
-			ifstream Story("Story.txt");
-			char Text[300];
-			while(Story.getline(Text,300)){
-				cout<<Text<<endl;
-				if(Text[0]=='#'){
-					X.moveToNextChapter();
-				}
-				if(Text[0]=='B'){
-					Battle::run(X);	
-				}
-				getInputCharFromConsole();	
-			}
-			getInputCharFromConsole();
-		}
+        static void StoryCheck(HumanPlayer& X){
+            ifstream Story("Story.txt");
+            char Text[300];
+            while(Story.getline(Text,300)){
+                TERMINAL_CLEAR;
+                if(Text[0]=='#') {
+                    X.moveToNextChapter();
+                } else if (Text[0]=='B') {
+                    Battle::run(X);	
+                } else {
+                    cout<<Text<<endl<<endl<<endl<<endl<<endl<<endl<<"\t\t\t\t\t\t";
+                    getInputCharFromConsole();	
+                }
+            }
+            getInputCharFromConsole();
+        }
 
 		static void start() {
 			HumanPlayer LeadChar;
@@ -571,11 +585,11 @@ class FF8Game {
 				cin>>temp_name;
 				LeadChar.setName(temp_name);
 				LeadChar.setHumanBehavior(choice);
-				LeadChar.display();
+				LeadChar.display(true);
 				LeadChar.updateStats();
 				FileSave(LeadChar);
 			}
-			LeadChar.display();
+			LeadChar.display(true);
 			TERMINAL_CLEAR;
 			StoryCheck(LeadChar);
 		}
