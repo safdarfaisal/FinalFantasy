@@ -12,6 +12,7 @@
 #include<time.h>
 #include<stdlib.h>
 #include <sstream>
+#include<process.h> 
 
 using namespace std;
 
@@ -221,6 +222,14 @@ class CharacterBehavior {
             cout<<"Accuracy: "<<Acc<<endl;
             cout<<"Critical: "<<Crit<<endl;
         }
+		/*
+		Supposed to be a behaviour of a character.Hence, it is 
+		declared here.Also used in battle sequence to fix a 
+		bug that did not factor in speed.
+		*/
+		bool playeralive(){ 
+			return ((HP-damagePoints)>0);
+		}
 };
 
 class Player {
@@ -522,7 +531,7 @@ class HumanPlayerBehavior {
             
         }
 
-        void MoveCheck(CharacterBehavior &base, CharacterBehavior &M) {
+        void MoveCheck(CharacterBehavior &base, CharacterBehavior &Opponent) {
             for(int i=0;Move[i].GetExistence()!=0;i++){
                 Move[i].MoveDisplay(i+1);
             }
@@ -531,17 +540,17 @@ class HumanPlayerBehavior {
             //read '\n'
             cin.get();
             bool ownAttackFirst = false;
-            if(base.speed() > M.speed()){
+            if(base.speed() > Opponent.speed()){
 				cout<<"Faster than your opponent, you strike first."<< endl;
-                setOpponentDamage(choice, base, M);
+                setOpponentDamage(choice, base, Opponent);
                 ownAttackFirst = true;
             } else {
-                setOwnDamage(base, M);
+                setOwnDamage(base, Opponent);
             }
-            if(ownAttackFirst) {
-                setOwnDamage(base, M);
-            } else {
-                setOpponentDamage(choice, base, M);
+            if(ownAttackFirst && Opponent.playeralive()) {
+                setOwnDamage(base, Opponent);
+			} else if (!ownAttackFirst && base.playeralive()) {
+                setOpponentDamage(choice, base, Opponent);
             }
         }
 };
@@ -559,7 +568,6 @@ class HumanPlayer : public Player {
         void setHumanBehavior(int playerRole) {
             humanBehavior.Charchange(playerRole, base);
         }
-
         void display(bool wait) {
             TERMINAL_CLEAR;
             cout<<this->name()<<endl;
@@ -607,8 +615,9 @@ class Opponent : public Player {
 
 class Battle {
     public:
-        static void run(HumanPlayer &protagonist){
-            Opponent antagonist;
+        static bool run(HumanPlayer &protagonist){
+            bool continueGame;
+			Opponent antagonist;
             antagonist.init(protagonist.chapter());
             antagonist.setName((char*)"bot");
             cout << protagonist.remainingHealth() << " " << antagonist.remainingHealth() << "\n";
@@ -621,10 +630,12 @@ class Battle {
                 cout<<antagonist.remainingHealth()<<"\t\t\t"<<protagonist.remainingHealth()<<endl;
                 if(!antagonist.alive()) {
                     cout<<"\nYou Win\n";
-                    break;
+                    continueGame = true;
+					break;
                 }
                 if(!protagonist.alive()) {
-                    cout<<"\nYou Lose\n";
+                    continueGame = false;
+					cout<<"\nYou Lose\n";
                     break;
                 }
                 //Moves need to be done in Unlockable Sequence
@@ -632,17 +643,37 @@ class Battle {
             }
             protagonist.revive();
             getInputCharFromConsole();
-        }
+			return continueGame;
+		}
 };
 
 class FF8Game {
     public:
-        static void FileSave(HumanPlayer& X){
+        static void FileSave(HumanPlayer& X, bool oldAccount=true){
             ofstream Save("Savefile.dat",ios::app);
-            Save.write((char*)&X,sizeof(X));
+			if(!oldAccount){
+			    Save.write((char*)&X,sizeof(X));
+			}
+			else{
+			    ofstream tempSave("tempSavefile.dat",ios::app);
+			    tempSave.write((char*)&X,sizeof(X));
+			    HumanPlayer tempPlayer;
+			    ifstream SavedFile("Savefile.dat");
+			    while(SavedFile.read((char*)&tempPlayer,sizeof(tempPlayer))){
+				    if(strcmp(X.name(),tempPlayer.name())){
+						tempSave.write((char*)&X,sizeof(X));
+				    }
+			    }
+				remove("Savefile.dat");
+				rename("tempSavefile.dat","Savefile.dat");
+				SavedFile.close();
+				tempSave.close();
+				cout<<"Savefile modified."<<endl;
+				cout<<"\n\n\n\n\n\n\t\t\t\t\t\t";
+				getInputCharFromConsole();
+			}
             Save.close();
         }
-
         static bool FileRead(HumanPlayer &X){
             bool newAccount = true;
             HumanPlayer M;
@@ -669,10 +700,40 @@ class FF8Game {
                 TERMINAL_CLEAR;
                 if(Text[0]=='#') {
                     X.moveToNextChapter();
-                } else if (Text[0]=='B') {
-                    Battle::run(X);	
-                } else {
-                    cout<<Text<<endl<<endl<<endl<<endl<<endl<<endl<<"\t\t\t\t\t\t";
+                }
+				else if (Text[0]=='B') {
+                    cout<<"Saving the game"<<endl;
+					cout<<"\n\n\n\n\n\n\t\t\t\t\t\t";
+					getInputCharFromConsole();
+					for(;;){
+				        if(Battle::run(X)){
+				    		break;
+				        }
+						else{
+							TERMINAL_CLEAR;
+						    cout<<"Everything fades to black\n\n\n\n\n\n\t\t\t\t\t\t";
+							getInputCharFromConsole();
+							char choice;
+							for(;;){
+								TERMINAL_CLEAR;
+							    cout<<"Do you want to replay from the previous savefile? (y/n)"<<endl;
+								cin>>choice;
+							    if(choice=='n'||choice=='N'){
+								    exit(0);
+							    }
+							    else if(choice=='y'||choice=='Y'){
+									break;
+								}
+								else{
+									cout<<"Enter a valid choice. (y/n) \n\n\n\n\n\n\t\t\t\t\t\t" << endl;
+									getInputCharFromConsole();
+								}
+						   }
+						}
+				    }
+                }
+				else {
+                    cout<<Text<<"\n\n\n\n\n\n\t\t\t\t\t\t";
                     getInputCharFromConsole();	
                 }
             }
@@ -700,7 +761,7 @@ class FF8Game {
                 LeadChar.setHumanBehavior(choice);
                 LeadChar.display(true);
                 LeadChar.updateStats();
-                FileSave(LeadChar);
+                FileSave(LeadChar,false);
             }
             LeadChar.display(true);
             TERMINAL_CLEAR;
