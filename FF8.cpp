@@ -1,6 +1,6 @@
 #include<iostream>
 #include<fstream>
-#ifdef __FF8_WINDOWS__
+#ifdef WIN32
     #include<conio.h>
     #define TERMINAL_CLEAR system("cls")
     #define GET_CHAR_FN return getch();
