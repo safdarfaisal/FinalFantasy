@@ -424,29 +424,102 @@ class HumanPlayerBehavior {
         }
 
         void setOpponentDamage(int choice, CharacterBehavior& base,
-                CharacterBehavior& M) {
+                CharacterBehavior& Opponent) {
             int DMG;
+			bool miss=false;
             float Mrate;
+			srand(time(0));
+			int A=rand();
             char type = Move[choice-1].GetType();
             if(type == 'M') {
-                Mrate = (float)(base.magicalAttack())/(float)(M.magicalDefense());
+                Mrate = (float)(base.magicalAttack())/(float)(Opponent.magicalDefense());
             } else if (type == 'P') {
-                Mrate = (float)(base.physicalAttack())/(float)(M.physicalDefense());
+                Mrate = (float)(base.physicalAttack())/(float)(Opponent.physicalDefense());
             }
             DMG=(Move[choice-1].GetPow())*Mrate;
-            M.changeDamage(DMG);
+			cout<<" A "<<A;
+			if(Opponent.evasion() > base.accuracy()){
+				if(A%3 == 0){
+					miss = true;
+				}
+				else{
+					miss = false;
+				}
+			}
+			else if(Opponent.evasion() == base.accuracy()){
+				if(A%5 == 0){
+					miss = true;
+				}
+				else{
+					miss = false;
+				}
+			}
+			else{
+				if(A%7 == 0){
+					miss = true;
+				}
+				else{
+					miss = false;
+				}	
+			}
+			if((rand()%base.criticalChance()>40)||(rand()%base.criticalChance()<2)){
+				DMG=DMG*1.5;
+				cout<<"Let's Go.. A critical hit."<< endl;
+			}
+			if(miss==true){
+				cout<<"Your attack missed."<< endl;
+			}
+			else{
+				Opponent.changeDamage(DMG);
+				cout<<"You just dealt " << DMG <<" damage"<<endl;
+			}
         }
 
-        void setOwnDamage(CharacterBehavior& base, CharacterBehavior& M) {
+        void setOwnDamage(CharacterBehavior& base, CharacterBehavior& Opponent) {
             int DMG;
             float Mrate;
+			bool miss;
             srand(time(0));
-            int A=rand();
             Mrate = 
-                (float)(M.physicalAttack()+M.magicalAttack())
+                (float)(Opponent.physicalAttack()+Opponent.magicalAttack())
                 /(float)(base.magicalDefense()+base.physicalDefense());
-            DMG=Mrate*(A%30);
-            base.changeDamage(DMG);
+            DMG=Mrate*(rand()%30);
+			if(base.evasion() > Opponent.accuracy()){
+				if(rand()%3 == 0){
+					miss = true;
+				}
+				else{
+					miss = false;
+				}
+			}
+			else if(base.evasion() == Opponent.accuracy()){
+				if(rand()%5 == 0){
+					miss = true;
+				}
+				else{
+					miss = false;
+				}
+			}
+			else{
+				if(rand()%7 == 0){
+					miss = true;
+				}
+				else{
+					miss = false;
+				}	
+			}
+			if((rand()%Opponent.criticalChance()>40)||(rand()%Opponent.criticalChance()<2)){
+				DMG=DMG*1.5;
+				cout<<"Oh no.. A critical hit strikes."<< endl;
+			}
+			if(miss==true){
+				cout<<"Lucky, they missed."<< endl;
+			}
+			else{
+				base.changeDamage(DMG);
+				cout<<"Your Opponent just dealt " << DMG <<" damage"<<endl;
+			}
+            
         }
 
         void MoveCheck(CharacterBehavior &base, CharacterBehavior &M) {
@@ -459,6 +532,7 @@ class HumanPlayerBehavior {
             cin.get();
             bool ownAttackFirst = false;
             if(base.speed() > M.speed()){
+				cout<<"Faster than your opponent, you strike first."<< endl;
                 setOpponentDamage(choice, base, M);
                 ownAttackFirst = true;
             } else {
