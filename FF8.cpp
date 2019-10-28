@@ -289,6 +289,7 @@ class ComputerPlayerBehavior {
             base.setEvasion(readParamFromFile(in));
             base.setCriticalChance(readParamFromFile(in));
             base.setAccuracy(readParamFromFile(in));
+            in.close();
 
             //generate randomised opponent behavior metrics
             cout << "File" << fileName << endl;
