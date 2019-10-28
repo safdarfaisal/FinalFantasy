@@ -1,8 +1,7 @@
 #include<iostream>
 #include<fstream>
 #ifdef __FF8_WINDOWS__
-    #include<conio.h>
-    #define TERMINAL_CLEAR system("cls")
+    #include<conio.h> #define TERMINAL_CLEAR system("cls")
     #define GET_CHAR_FN return getch();
 #else
     #define TERMINAL_CLEAR system("clear")
@@ -67,7 +66,7 @@ class MoveSet{
         A=0;
     }
 
-    void MoveChange(int Pow,char Xame[],int typecheck){
+    void MoveChange(int Pow, char Xame[], int typecheck){
         Power=Pow;
         strcpy(Name,Xame);
         if(typecheck==1){
@@ -89,12 +88,10 @@ class MoveSet{
     void MoveDisplay(int x){
         if(Type=='M'){
             cout<<x<<". "<<Name<<"\t"<<"Magical Move"<<endl;
-            cout<<Power<<endl;	
-        }
-        if(Type=='P'){
+        } else if(Type=='P') {
             cout<<x<<". "<<Name<<"\t"<<"Physical Move"<<endl;
-            cout<<Power<<endl;	
         }
+        cout<<"Power: " << Power<<endl;	
     }
     int GetPow(){
         return Power;
@@ -255,13 +252,45 @@ class Player {
 };
 
 class ComputerPlayerBehavior {
+    private:
+        int readParamFromFile(ifstream &in)
+        {
+            //read and convert to int.
+            char param_c[8];
+            memset(param_c, 0, 8);
+            in.getline(param_c, 3, ','); 
+            stringstream param_str;
+            param_str << param_c;
+            unsigned int param_i = 0;
+            param_str >> param_i;
+            return param_i;
+        }
+
     public:
         void init(int chapter, char *fileName, CharacterBehavior &base) {
-            //ifstream O(fileName);
-            //TODO: Serialize and de-serialize using CSV instead of binary
-            //read from file in compPlayerBehavior, pass filename.
+            /*
+            CSV format is as follows:
+
+            HitPoints,PhysicalAttack,PhysicalDefence,MagicalAttack,
+            MagicalDefence,Speed, Evasion,CriticalChance,Accuracy
+
+            Each value can go up to 999 (3 digits). Any change in limits
+            should be evaluated against the size so that there is no
+            overflow.
+            */
+            ifstream in(fileName);
+            base.setHitPoints(readParamFromFile(in));
+            base.setPhysicalAttack(readParamFromFile(in));
+            base.setPhysicalDefense(readParamFromFile(in));
+            base.setMagicalAttack(readParamFromFile(in));
+            base.setMagicalDefense(readParamFromFile(in));
+            base.setSpeed(readParamFromFile(in));
+            base.setEvasion(readParamFromFile(in));
+            base.setCriticalChance(readParamFromFile(in));
+            base.setAccuracy(readParamFromFile(in));
 
             //generate randomised opponent behavior metrics
+            cout << "File" << fileName << endl;
             srand(time(0));
             int M=25*chapter;
             base.changeHitPoints(rand()%M);
@@ -273,6 +302,8 @@ class ComputerPlayerBehavior {
             base.changeEvasion(rand()%M);
             base.changeCriticalChance(rand()%M);
             base.changeAccuracy(rand()%M);
+
+            base.CharDisplay();
         }
 };
 
@@ -312,9 +343,9 @@ class HumanPlayerBehavior {
                 base.changeAccuracy(10);
                 strcpy(Class,"Archer");
                 strcpy(Name,"Flint Arrow");
-                Move[0].MoveChange(25,Name,'2');
+                Move[0].MoveChange(25, Name, 2);
                 strcpy(Name,"Vanisher");
-                Move[1].MoveChange(25,Name,'1');
+                Move[1].MoveChange(25, Name, 1);
             }
             if(M==2){
                 base.changePhysicalAttack(15);
@@ -322,9 +353,9 @@ class HumanPlayerBehavior {
                 base.changeSpeed(5);
                 strcpy(Class,"Brawler");
                 strcpy(Name,"Punch");
-                Move[0].MoveChange(30,Name,'2');
+                Move[0].MoveChange(30, Name, 2);
                 strcpy(Name,"Zen Punch");
-                Move[1].MoveChange(20,Name,'1');
+                Move[1].MoveChange(20, Name, 1);
             }
             if(M==3){
                 base.changeMagicalAttack(15);
@@ -332,9 +363,9 @@ class HumanPlayerBehavior {
                 base.changeCriticalChance(10);
                 strcpy(Class,"Wizard");
                 strcpy(Name,"Physical Hymn");
-                Move[0].MoveChange(20,Name,'2');
+                Move[0].MoveChange(20, Name, 2);
                 strcpy(Name,"Burn");
-                Move[1].MoveChange(30,Name,'1');
+                Move[1].MoveChange(30, Name, 1);
             }
         }
 
@@ -395,10 +426,11 @@ class HumanPlayerBehavior {
                 CharacterBehavior& M) {
             int DMG;
             float Mrate;
-            if(Move[choice-1].GetType()=='M'){
-                Mrate = base.magicalAttack()/M.magicalDefense();
-            } else {
-                Mrate = base.physicalAttack()/M.physicalDefense();
+            char type = Move[choice-1].GetType();
+            if(type == 'M') {
+                Mrate = (float)(base.magicalAttack())/(float)(M.magicalDefense());
+            } else if (type == 'P') {
+                Mrate = (float)(base.physicalAttack())/(float)(M.physicalDefense());
             }
             DMG=(Move[choice-1].GetPow())*Mrate;
             M.changeDamage(DMG);
@@ -409,13 +441,14 @@ class HumanPlayerBehavior {
             float Mrate;
             srand(time(0));
             int A=rand();
-            Mrate=(M.physicalAttack()+M.magicalAttack())/(base.magicalDefense()+base.physicalDefense());
+            Mrate = 
+                (float)(M.physicalAttack()+M.magicalAttack())
+                /(float)(base.magicalDefense()+base.physicalDefense());
             DMG=Mrate*(A%30);
             base.changeDamage(DMG);
         }
 
         void MoveCheck(CharacterBehavior &base, CharacterBehavior &M) {
-            //TODO: Move display not being printed
             for(int i=0;Move[i].GetExistence()!=0;i++){
                 Move[i].MoveDisplay(i+1);
             }
@@ -486,7 +519,8 @@ class Opponent : public Player {
 
     public:
         void init(int x) {
-            char fileName[MAX_NAME_LEN] = {0};
+            char fileName[MAX_NAME_LEN];
+            memset(fileName, 0, MAX_NAME_LEN);
             strcat(fileName, "opp_chapter_");
             ostringstream oss;
             oss << x;
@@ -582,8 +616,11 @@ class FF8Game {
                 int choice;
                 cin>>choice;
                 cout<<"Name of Character?"<<endl;
-                char temp_name[MAX_NAME_LEN] = {0};
-                cin>>temp_name;
+                char temp_name[MAX_NAME_LEN];
+                memset(temp_name, 0, MAX_NAME_LEN);
+                //read \n
+                cin.get();
+                cin.getline(temp_name, MAX_NAME_LEN);
                 LeadChar.setName(temp_name);
                 LeadChar.setHumanBehavior(choice);
                 LeadChar.display(true);
