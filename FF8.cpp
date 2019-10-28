@@ -1,7 +1,8 @@
 #include<iostream>
 #include<fstream>
 #ifdef __FF8_WINDOWS__
-    #include<conio.h> #define TERMINAL_CLEAR system("cls")
+    #include<conio.h>
+    #define TERMINAL_CLEAR system("cls")
     #define GET_CHAR_FN return getch();
 #else
     #define TERMINAL_CLEAR system("clear")
