@@ -438,7 +438,6 @@ class HumanPlayerBehavior {
                 Mrate = (float)(base.physicalAttack())/(float)(Opponent.physicalDefense());
             }
             DMG=(Move[choice-1].GetPow())*Mrate;
-			cout<<" A "<<A;
 			if(Opponent.evasion() > base.accuracy()){
 				if(A%3 == 0){
 					miss = true;
