@@ -1,5 +1,6 @@
 #include<iostream>
 #include<fstream>
+#include <stdio.h>
 #ifdef WIN32
     #include<conio.h>
     #define TERMINAL_CLEAR system("cls")
@@ -20,7 +21,7 @@ using namespace std;
 
 int getInputCharFromConsole()
 {
-    cout << "Press any key to continue...";
+    cout << "\n\n\n\n\n\n\t\t\t\t\t\tPress any key to continue...";
     GET_CHAR_FN;
 }
 
@@ -653,26 +654,28 @@ class FF8Game {
             ofstream Save("Savefile.dat",ios::app);
 			if(!oldAccount){
 			    Save.write((char*)&X,sizeof(X));
+				Save.close();
 			}
 			else{
 			    ofstream tempSave("tempSavefile.dat",ios::app);
 			    tempSave.write((char*)&X,sizeof(X));
 			    HumanPlayer tempPlayer;
-			    ifstream SavedFile("Savefile.dat");
+				ifstream SavedFile("Savefile.dat",ios::beg);
 			    while(SavedFile.read((char*)&tempPlayer,sizeof(tempPlayer))){
 				    if(strcmp(X.name(),tempPlayer.name())){
-						tempSave.write((char*)&X,sizeof(X));
+						tempSave.write((char*)&tempPlayer,sizeof(tempPlayer));
 				    }
 			    }
-				remove("Savefile.dat");
-				rename("tempSavefile.dat","Savefile.dat");
 				SavedFile.close();
 				tempSave.close();
-				cout<<"Savefile modified."<<endl;
-				cout<<"\n\n\n\n\n\n\t\t\t\t\t\t";
-				getInputCharFromConsole();
+				Save.close();
+				if (remove("Savefile.dat") == 0) {
+					rename("tempSavefile.dat","Savefile.dat");
+				} else {
+					cout << "Error: could not save the game." << endl;
+					getInputCharFromConsole();
+				}
 			}
-            Save.close();
         }
         static bool FileRead(HumanPlayer &X){
             bool newAccount = true;
@@ -696,48 +699,53 @@ class FF8Game {
         static void StoryCheck(HumanPlayer& X){
             ifstream Story("Story.txt");
             char Text[300];
+			int chapter = 0;
             while(Story.getline(Text,300)){
                 TERMINAL_CLEAR;
-                if(Text[0]=='#') {
-                    X.moveToNextChapter();
-                }
-				else if (Text[0]=='B') {
-                    cout<<"Saving the game"<<endl;
-					cout<<"\n\n\n\n\n\n\t\t\t\t\t\t";
-					getInputCharFromConsole();
-					for(;;){
-				        if(Battle::run(X)){
-				    		break;
-				        }
-						else{
-							TERMINAL_CLEAR;
-						    cout<<"Everything fades to black\n\n\n\n\n\n\t\t\t\t\t\t";
-							getInputCharFromConsole();
-							char choice;
-							for(;;){
+				if(chapter == X.chapter()){
+					if(Text[0]=='#') {
+						X.moveToNextChapter();
+						FileSave(X);
+					}
+					else if (Text[0]=='B') {
+						cout<<"Saving the game"<<endl;
+						getInputCharFromConsole();
+						for(;;){
+							if(Battle::run(X)){
+								break;
+							}
+							else{
 								TERMINAL_CLEAR;
-							    cout<<"Do you want to replay from the previous savefile? (y/n)"<<endl;
-								cin>>choice;
-							    if(choice=='n'||choice=='N'){
-								    exit(0);
-							    }
-							    else if(choice=='y'||choice=='Y'){
-									break;
-								}
-								else{
-									cout<<"Enter a valid choice. (y/n) \n\n\n\n\n\n\t\t\t\t\t\t" << endl;
-									getInputCharFromConsole();
-								}
-						   }
+								cout<<"Everything fades to black";
+								getInputCharFromConsole();
+								char choice;
+								for(;;){
+									TERMINAL_CLEAR;
+									cout<<"Do you want to replay from the previous savefile? (y/n)"<<endl;
+									cin>>choice;
+									if(choice=='n'||choice=='N'){
+										exit(0);
+									}
+									else if(choice=='y'||choice=='Y'){
+										break;
+									}
+									else{
+										cout<<"Enter a valid choice. (y/n)" << endl;
+										getInputCharFromConsole();
+									}
+							   }
+							}
 						}
-				    }
-                }
-				else {
-                    cout<<Text<<"\n\n\n\n\n\n\t\t\t\t\t\t";
-                    getInputCharFromConsole();	
-                }
-            }
-            getInputCharFromConsole();
+					}
+					else {
+						cout<<Text;
+						getInputCharFromConsole();	
+					}	        
+				}
+				if(Text[0] == '+'){
+					chapter++;
+				}
+			}            
         }
 
         static void start() {
