@@ -402,7 +402,8 @@ class HumanPlayerBehavior {
                 TERMINAL_CLEAR;
                 cout<<"Skill Points Left: "<<Skill<<endl;
                 cout<<"Choose a stat you would like to upgrade."<<endl; 
-                cout<<" 1.Hit Points \n 2.Physical Attack \n 3.Physical Defense"<<endl;
+                cout<<" 1.Hit Points \n 2.Physical Attack \n ";
+                cout<<"3.Physical Defense"<<endl;
                 cout<<" 4.Magic Attack \n 5.Magic Defense \n 6.Accuracy"<<endl; 
                 cout<<" 7.Speed \n 8.Evasion \n 9.Critical Chance"<<endl;   
                 cout<<" Enter 10 to quit and preserve your skill points."<<endl;
@@ -643,14 +644,17 @@ class Battle {
             Opponent antagonist;
             antagonist.init(protagonist.chapter());
             antagonist.setName((char*)"bot");
-            cout << protagonist.remainingHealth() << " " << antagonist.remainingHealth() << "\n";
+            cout << protagonist.remainingHealth() << " "
+                << antagonist.remainingHealth() << "\n";
             while(protagonist.alive() && antagonist.alive()) {
                 TERMINAL_CLEAR;
                 cout<<antagonist.name()<<"\t\t\t"<<protagonist.name()<<endl;
-                cout<<antagonist.remainingHealth()<<"\t\t\t"<<protagonist.remainingHealth()<<endl;
+                cout<<antagonist.remainingHealth()<<"\t\t\t"
+                    <<protagonist.remainingHealth()<<endl;
                 cout<<"Enter the move you would like to use"<<endl;
                 protagonist.battle(antagonist);
-                cout<<antagonist.remainingHealth()<<"\t\t\t"<<protagonist.remainingHealth()<<endl;
+                cout<<antagonist.remainingHealth()<<"\t\t\t"
+                    <<protagonist.remainingHealth()<<endl;
                 if(!antagonist.alive()) {
                     cout<<"\nYou Win\n";
                     continueGame = true;
@@ -743,7 +747,8 @@ class FF8Game {
                                 char choice;
                                 for(;;){
                                     TERMINAL_CLEAR;
-                                    cout<<"Do you want to replay from the previous savefile? (y/n)"<<endl;
+                                    cout<<"Do you want to replay from the ";
+                                    cout<<"previous savefile? (y/n)"<<endl;
                                     cin>>choice;
                                     if(choice=='n'||choice=='N'){
                                         exit(0);
@@ -752,7 +757,8 @@ class FF8Game {
                                         break;
                                     }
                                     else{
-                                        cout<<"Enter a valid choice. (y/n)" << endl;
+                                        cout<<"Enter a valid choice. (y/n)"
+                                            << endl;
                                         getInputCharFromConsole();
                                     }
                                 }
@@ -775,10 +781,15 @@ class FF8Game {
             if (FileRead(LeadChar)) {
                 //new account
                 TERMINAL_CLEAR;
-                cout<<"Welcome to the Game. What character would you like to play?"<<endl;
-                cout<<"1.Archer \n A fast and evasive class with an eye for details."<<endl;
-                cout<<"2.Brawler \n Get ready to pack a punch with this class."<<endl;
-                cout<<"3.Wizard \n A magical class of humans who took learning too far"<<endl;
+                cout<<"Welcome to the Game. ";
+                cout<<"What character would you like to play?"<<endl;
+                cout<<"1.Archer \n ";
+                cout<<"A fast and evasive class with an eye for details."<<endl;
+                cout<<"2.Brawler \n Get ready to pack a punch with this class."
+                    <<endl;
+                cout<<"3.Wizard \n ";
+                cout<<"A magical class of humans who took learning too far"
+                    <<endl;
                 int choice;
                 cin>>choice;
                 cout<<"Name of Character?"<<endl;

@@ -72,7 +72,7 @@
     % filename
     %0 setgray 
     HeaderHDRF setfont
-    d_header_w fname stringwidth pop sub 1 div d_header_h 8 div moveto
+    d_header_w fname stringwidth pop sub 1.05 div d_header_h 8 div moveto
     %d_header_w fname stringwidth pop sub 2 div d_header_h 8 div moveto
     fname show
 
