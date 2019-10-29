@@ -1,5 +1,5 @@
-#include<iostream>
-#include<fstream>
+#include <iostream>
+#include <fstream>
 #include <stdio.h>
 #ifdef WIN32
     #include<conio.h>
@@ -9,11 +9,10 @@
     #define TERMINAL_CLEAR system("clear")
     #define GET_CHAR_FN return cin.get();
 #endif
-#include<string.h>
-#include<time.h>
-#include<stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <stdlib.h>
 #include <sstream>
-#include<process.h> 
 
 using namespace std;
 
@@ -110,7 +109,7 @@ class MoveSet{
         } else if(Type=='P') {
             cout<<x<<". "<<Name<<"\t"<<"Physical Move"<<endl;
         }
-        cout<<"Power: " << Power<<endl;	
+        cout<<"Power: " << Power<<endl; 
     }
     int GetPow(){
         return Power;
@@ -120,7 +119,7 @@ class MoveSet{
     }
     int GetExistence(){
         return A;
-    }		
+    }       
 };
 
 int MoveSet::move_count = 0;
@@ -132,7 +131,7 @@ class CharacterBehavior {
         int Acc,Eva,Sp,Crit;
         int damagePoints;
 
-    public:	
+    public: 
         CharacterBehavior(){
             HP = 0;
             Patt = Pdef = Matt = Mdef = 0;
@@ -239,14 +238,14 @@ class CharacterBehavior {
             cout<<"Accuracy: "<<Acc<<endl;
             cout<<"Critical: "<<Crit<<endl;
         }
-		/*
-		Supposed to be a behaviour of a character.Hence, it is 
-		declared here.Also used in battle sequence to fix a 
-		bug that did not factor in speed.
-		*/
-		bool playeralive(){ 
-			return ((HP-damagePoints)>0);
-		}
+        /*
+           Supposed to be a behaviour of a character. Hence, it is declared 
+           here. Also used in battle sequence to fix a bug that did not factor
+           in speed.
+           */
+        bool playeralive(){ 
+            return ((HP-damagePoints)>0);
+        }
 };
 
 class Player {
@@ -272,7 +271,7 @@ class Player {
     }
     void revive() {
         base.setDamage(0);
-    }		
+    }       
     CharacterBehavior& characterBehavior() {
         return base;
     }
@@ -296,15 +295,15 @@ class ComputerPlayerBehavior {
     public:
         void init(int chapter, char *fileName, CharacterBehavior &base) {
             /*
-            CSV format is as follows:
+               CSV format is as follows:
 
-            HitPoints,PhysicalAttack,PhysicalDefence,MagicalAttack,
-            MagicalDefence,Speed, Evasion,CriticalChance,Accuracy
+               HitPoints,PhysicalAttack,PhysicalDefence,MagicalAttack,
+               MagicalDefence,Speed, Evasion,CriticalChance,Accuracy
 
-            Each value can go up to 999 (3 digits). Any change in limits
-            should be evaluated against the size so that there is no
-            overflow.
-            */
+               Each value can go up to 999 (3 digits). Any change in limits
+               should be evaluated against the size so that there is no
+               overflow.
+               */
             ifstream in(fileName);
             base.setHitPoints(readParamFromFile(in));
             base.setPhysicalAttack(readParamFromFile(in));
@@ -402,10 +401,10 @@ class HumanPlayerBehavior {
             while(Skill>0){
                 TERMINAL_CLEAR;
                 cout<<"Skill Points Left: "<<Skill<<endl;
-                cout<<"Choose a stat you would like to upgrade."<<endl;	
+                cout<<"Choose a stat you would like to upgrade."<<endl; 
                 cout<<" 1.Hit Points \n 2.Physical Attack \n 3.Physical Defense"<<endl;
-                cout<<" 4.Magic Attack \n 5.Magic Defense \n 6.Accuracy"<<endl;	
-                cout<<" 7.Speed \n 8.Evasion \n 9.Critical Chance"<<endl;	
+                cout<<" 4.Magic Attack \n 5.Magic Defense \n 6.Accuracy"<<endl; 
+                cout<<" 7.Speed \n 8.Evasion \n 9.Critical Chance"<<endl;   
                 cout<<" Enter 10 to quit and preserve your skill points."<<endl;
                 cin>>x;
                 if ((x > 10) || (x < 1)) { 
@@ -417,23 +416,23 @@ class HumanPlayerBehavior {
                 }
                 if(Skill>=y){
                     switch(x){
-                        case 1:	base.changeHitPoints(y*5);
+                        case 1: base.changeHitPoints(y*5);
                                 break;
                         case 2: base.changePhysicalAttack(y*2);
                                 break;
-                        case 3:	base.changePhysicalDefense(y*2);
+                        case 3: base.changePhysicalDefense(y*2);
                                 break;
                         case 4: base.changeMagicalAttack(y*2);
                                 break;
-                        case 5:	base.changeMagicalDefense(y*2);
+                        case 5: base.changeMagicalDefense(y*2);
                                 break;
                         case 6: base.changeAccuracy(y*2);
                                 break;
-                        case 7:	base.changeSpeed(y*3);
+                        case 7: base.changeSpeed(y*3);
                                 break;
                         case 8: base.changeEvasion(y);
                                 break;
-                        case 9:	base.changeCriticalChance(y*5);
+                        case 9: base.changeCriticalChance(y*5);
                                 break;
                         case 10:
                                 //flow through
@@ -444,7 +443,7 @@ class HumanPlayerBehavior {
                     if(z == 1) {
                         break;
                     } else { 
-                        Skill-=y;	
+                        Skill-=y;   
                     }
                 }
             }
@@ -453,99 +452,106 @@ class HumanPlayerBehavior {
         void setOpponentDamage(int choice, CharacterBehavior& base,
                 CharacterBehavior& Opponent) {
             int DMG;
-			bool miss=false;
+            bool miss=false;
             float Mrate;
-			srand(time(0));
-			int A=rand();
+            srand(time(0));
+            int A=rand();
             char type = Move[choice-1].GetType();
             if(type == 'M') {
-                Mrate = (float)(base.magicalAttack())/(float)(Opponent.magicalDefense());
+                Mrate =
+                    (float)(base.magicalAttack())
+                    /(float)(Opponent.magicalDefense());
             } else if (type == 'P') {
-                Mrate = (float)(base.physicalAttack())/(float)(Opponent.physicalDefense());
+                Mrate =
+                    (float)(base.physicalAttack())
+                    /(float)(Opponent.physicalDefense());
             }
             DMG=(Move[choice-1].GetPow())*Mrate;
-			if(Opponent.evasion() > base.accuracy()){
-				if(A%3 == 0){
-					miss = true;
-				}
-				else{
-					miss = false;
-				}
-			}
-			else if(Opponent.evasion() == base.accuracy()){
-				if(A%5 == 0){
-					miss = true;
-				}
-				else{
-					miss = false;
-				}
-			}
-			else{
-				if(A%7 == 0){
-					miss = true;
-				}
-				else{
-					miss = false;
-				}	
-			}
-			if((rand()%base.criticalChance()>40)||(rand()%base.criticalChance()<2)){
-				DMG=DMG*1.5;
-				cout<<"Let's Go.. A critical hit."<< endl;
-			}
-			if(miss==true){
-				cout<<"Your attack missed."<< endl;
-			}
-			else{
-				Opponent.changeDamage(DMG);
-				cout<<"You just dealt " << DMG <<" damage"<<endl;
-			}
+            if(Opponent.evasion() > base.accuracy()){
+                if(A%3 == 0){
+                    miss = true;
+                }
+                else{
+                    miss = false;
+                }
+            }
+            else if(Opponent.evasion() == base.accuracy()){
+                if(A%5 == 0){
+                    miss = true;
+                }
+                else{
+                    miss = false;
+                }
+            }
+            else{
+                if(A%7 == 0){
+                    miss = true;
+                }
+                else{
+                    miss = false;
+                }   
+            }
+            if ((rand()%base.criticalChance() > 40) ||
+                    (rand()%base.criticalChance() < 2)) {
+                DMG=DMG*1.5;
+                cout<<"Let's Go.. A critical hit."<< endl;
+            }
+            if(miss==true){
+                cout<<"Your attack missed."<< endl;
+            }
+            else{
+                Opponent.changeDamage(DMG);
+                cout<<"You just dealt " << DMG <<" damage"<<endl;
+            }
         }
 
-        void setOwnDamage(CharacterBehavior& base, CharacterBehavior& Opponent) {
+        void setOwnDamage(CharacterBehavior& base,
+                CharacterBehavior& Opponent) {
             int DMG;
             float Mrate;
-			bool miss;
+            bool miss;
             srand(time(0));
             Mrate = 
                 (float)(Opponent.physicalAttack()+Opponent.magicalAttack())
                 /(float)(base.magicalDefense()+base.physicalDefense());
             DMG=Mrate*(rand()%30);
-			if(base.evasion() > Opponent.accuracy()){
-				if(rand()%3 == 0){
-					miss = true;
-				}
-				else{
-					miss = false;
-				}
-			}
-			else if(base.evasion() == Opponent.accuracy()){
-				if(rand()%5 == 0){
-					miss = true;
-				}
-				else{
-					miss = false;
-				}
-			}
-			else{
-				if(rand()%7 == 0){
-					miss = true;
-				}
-				else{
-					miss = false;
-				}	
-			}
-			if((rand()%Opponent.criticalChance()>40)||(rand()%Opponent.criticalChance()<2)){
-				DMG=DMG*1.5;
-				cout<<"Oh no.. A critical hit strikes."<< endl;
-			}
-			if(miss==true){
-				cout<<"Lucky, they missed."<< endl;
-			}
-			else{
-				base.changeDamage(DMG);
-				cout<<"Your Opponent just dealt " << DMG <<" damage"<<endl;
-			}
-            
+            if(base.evasion() > Opponent.accuracy()){
+                if(rand()%3 == 0){
+                    miss = true;
+                }
+                else{
+                    miss = false;
+                }
+            }
+            else if(base.evasion() == Opponent.accuracy()){
+                if(rand()%5 == 0){
+                    miss = true;
+                }
+                else{
+                    miss = false;
+                }
+            }
+            else{
+                if(rand()%7 == 0){
+                    miss = true;
+                }
+                else{
+                    miss = false;
+                }   
+            }
+            if ((rand()%Opponent.criticalChance() > 40) ||
+                    (rand()%Opponent.criticalChance() < 2)) {
+                DMG=DMG*1.5;
+                cout<<"Oh no.. A critical hit strikes."<< endl;
+            }
+            if(miss==true){
+                cout<<"Lucky, they missed."<< endl;
+            }
+            else{
+                base.changeDamage(DMG);
+                cout<<"Your Opponent just dealt " << DMG <<" damage"<<endl;
+            }
+
         }
 
         void MoveCheck(CharacterBehavior &base, CharacterBehavior &Opponent) {
@@ -558,7 +564,7 @@ class HumanPlayerBehavior {
             cin.get();
             bool ownAttackFirst = false;
             if(base.speed() > Opponent.speed()){
-				cout<<"Faster than your opponent, you strike first."<< endl;
+                cout<<"Faster than your opponent, you strike first."<< endl;
                 setOpponentDamage(choice, base, Opponent);
                 ownAttackFirst = true;
             } else {
@@ -566,7 +572,7 @@ class HumanPlayerBehavior {
             }
             if(ownAttackFirst && Opponent.playeralive()) {
                 setOwnDamage(base, Opponent);
-			} else if (!ownAttackFirst && base.playeralive()) {
+            } else if (!ownAttackFirst && base.playeralive()) {
                 setOpponentDamage(choice, base, Opponent);
             }
         }
@@ -634,7 +640,7 @@ class Battle {
     public:
         static bool run(HumanPlayer &protagonist){
             bool continueGame;
-			Opponent antagonist;
+            Opponent antagonist;
             antagonist.init(protagonist.chapter());
             antagonist.setName((char*)"bot");
             cout << protagonist.remainingHealth() << " " << antagonist.remainingHealth() << "\n";
@@ -648,50 +654,50 @@ class Battle {
                 if(!antagonist.alive()) {
                     cout<<"\nYou Win\n";
                     continueGame = true;
-					break;
+                    break;
                 }
                 if(!protagonist.alive()) {
                     continueGame = false;
-					cout<<"\nYou Lose\n";
+                    cout<<"\nYou Lose\n";
                     break;
                 }
-                //Moves need to be done in Unlockable Sequence
+                //Moves need to be done in unlockable Sequence
                 getInputCharFromConsole();
             }
             protagonist.revive();
             getInputCharFromConsole();
-			return continueGame;
-		}
+            return continueGame;
+        }
 };
 
 class FF8Game {
     public:
         static void FileSave(HumanPlayer& X, bool oldAccount=true){
             ofstream Save("Savefile.dat",ios::app);
-			if(!oldAccount){
-			    Save.write((char*)&X,sizeof(X));
-				Save.close();
-			}
-			else{
-			    ofstream tempSave("tempSavefile.dat",ios::app);
-			    tempSave.write((char*)&X,sizeof(X));
-			    HumanPlayer tempPlayer;
-				ifstream SavedFile("Savefile.dat",ios::beg);
-			    while(SavedFile.read((char*)&tempPlayer,sizeof(tempPlayer))){
-				    if(strcmp(X.name(),tempPlayer.name())){
-						tempSave.write((char*)&tempPlayer,sizeof(tempPlayer));
-				    }
-			    }
-				SavedFile.close();
-				tempSave.close();
-				Save.close();
-				if (remove("Savefile.dat") == 0) {
-					rename("tempSavefile.dat","Savefile.dat");
-				} else {
-					cout << "Error: could not save the game." << endl;
-					getInputCharFromConsole();
-				}
-			}
+            if(!oldAccount){
+                Save.write((char*)&X,sizeof(X));
+                Save.close();
+            }
+            else{
+                ofstream tempSave("tempSavefile.dat",ios::app);
+                tempSave.write((char*)&X,sizeof(X));
+                HumanPlayer tempPlayer;
+                ifstream SavedFile("Savefile.dat",ios::beg);
+                while(SavedFile.read((char*)&tempPlayer,sizeof(tempPlayer))){
+                    if(strcmp(X.name(),tempPlayer.name())){
+                        tempSave.write((char*)&tempPlayer,sizeof(tempPlayer));
+                    }
+                }
+                SavedFile.close();
+                tempSave.close();
+                Save.close();
+                if (remove("Savefile.dat") == 0) {
+                    rename("tempSavefile.dat","Savefile.dat");
+                } else {
+                    cout << "Error: could not save the game." << endl;
+                    getInputCharFromConsole();
+                }
+            }
         }
         static bool FileRead(HumanPlayer &X){
             bool newAccount = true;
@@ -705,7 +711,7 @@ class FF8Game {
                 if(x=='y'){
                     X=M;
                     newAccount = false;
-                    break;		
+                    break;      
                 }
             }
             SavedFile.close();
@@ -715,53 +721,53 @@ class FF8Game {
         static void StoryCheck(HumanPlayer& X){
             ifstream Story("Story.txt");
             char Text[300];
-			int chapter = 0;
+            int chapter = 0;
             while(Story.getline(Text,300)){
                 TERMINAL_CLEAR;
-				if(chapter == X.chapter()){
-					if(Text[0]=='#') {
-						X.moveToNextChapter();
-						FileSave(X);
-					}
-					else if (Text[0]=='$') {
-						cout<<"Saving the game"<<endl;
-						getInputCharFromConsole();
-						for(;;){
-							if(Battle::run(X)){
-								break;
-							}
-							else{
-								TERMINAL_CLEAR;
-								cout<<"Everything fades to black";
-								getInputCharFromConsole();
-								char choice;
-								for(;;){
-									TERMINAL_CLEAR;
-									cout<<"Do you want to replay from the previous savefile? (y/n)"<<endl;
-									cin>>choice;
-									if(choice=='n'||choice=='N'){
-										exit(0);
-									}
-									else if(choice=='y'||choice=='Y'){
-										break;
-									}
-									else{
-										cout<<"Enter a valid choice. (y/n)" << endl;
-										getInputCharFromConsole();
-									}
-							   }
-							}
-						}
-					}
-					else {
-						cout<<Text;
-						getInputCharFromConsole();	
-					}	        
-				}
-				if(Text[0] == '+'){
-					chapter++;
-				}
-			}            
+                if(chapter == X.chapter()){
+                    if(Text[0]=='#') {
+                        X.moveToNextChapter();
+                        FileSave(X);
+                    }
+                    else if (Text[0]=='$') {
+                        cout<<"Saving the game"<<endl;
+                        getInputCharFromConsole();
+                        for(;;){
+                            if(Battle::run(X)){
+                                break;
+                            }
+                            else{
+                                TERMINAL_CLEAR;
+                                cout<<"Everything fades to black";
+                                getInputCharFromConsole();
+                                char choice;
+                                for(;;){
+                                    TERMINAL_CLEAR;
+                                    cout<<"Do you want to replay from the previous savefile? (y/n)"<<endl;
+                                    cin>>choice;
+                                    if(choice=='n'||choice=='N'){
+                                        exit(0);
+                                    }
+                                    else if(choice=='y'||choice=='Y'){
+                                        break;
+                                    }
+                                    else{
+                                        cout<<"Enter a valid choice. (y/n)" << endl;
+                                        getInputCharFromConsole();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        cout<<Text;
+                        getInputCharFromConsole();  
+                    }           
+                }
+                if(Text[0] == '+'){
+                    chapter++;
+                }
+            }            
         }
 
         static void start() {
