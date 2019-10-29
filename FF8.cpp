@@ -19,11 +19,26 @@ using namespace std;
 
 #define MAX_NAME_LEN 30
 
+/*
+Storyline for the game is read from an external file - Story.txt in the same
+folder as the executable. Each line signifies a statement in the story. Lines
+starting with special characters are used to control flow, as follows:
+$ --> initiate battle sequence
+# --> mark end of chapter and save
++ --> move to next chapter
+*/
+
 int getInputCharFromConsole()
 {
     cout << "\n\n\n\n\n\n\t\t\t\t\t\tPress any key to continue...";
     GET_CHAR_FN;
 }
+
+/*
+TODO: support for equipments
+TODO: shopping using gold
+TODO: support for player levels based on experience
+*/
 
 class Equipment {
     int Rarity;
@@ -54,6 +69,7 @@ class Equipment {
         }
     }
 };
+
 class MoveSet{
     int Power;
     int A;
@@ -707,7 +723,7 @@ class FF8Game {
 						X.moveToNextChapter();
 						FileSave(X);
 					}
-					else if (Text[0]=='B') {
+					else if (Text[0]=='$') {
 						cout<<"Saving the game"<<endl;
 						getInputCharFromConsole();
 						for(;;){
